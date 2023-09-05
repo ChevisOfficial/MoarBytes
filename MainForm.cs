@@ -11,10 +11,11 @@ namespace MoarBytes
     public partial class MainForm : Form
     {
         private string fPath;
-        private BigInteger fSize;
+        private BigInteger fSize, mLeft;
         public MainForm()
         {
             InitializeComponent();
+            TypeBytes.SelectedIndex = 2;
         }
 
         private void SelectFile_Click(object sender, EventArgs e)
@@ -32,23 +33,60 @@ namespace MoarBytes
 
                     FileSizeLabel.Text = $"Размер файла: {GetFriendlySize(fSize)}";
                     OutputSizeLabel.Text = $"Выходной размер: {GetFriendlySize(fSize + GetMoarSize())}";
+
+                    UpdateDriveInfo();
                 }
             }
         }
 
         private string GetFriendlySize(BigInteger bytes)
         {
+            bytes = bytes < 0 ? -bytes : bytes;
             string[] suffixes = { "Б", "КБ", "МБ", "ГБ" };
             int order = 0;
 
-            while (bytes >= 1024 && order < suffixes.Length - 1)
+            if (bytes < (BigInteger)2 * 1024 * 1024 * 1024)
             {
-                bytes /= 1024;
-                order++;
+                decimal rationalBytes = (decimal)bytes;
+                while (rationalBytes >= 1024 && order < suffixes.Length - 1)
+                {
+                    rationalBytes /= 1024;
+                    order++;
+                }
+                return $"{rationalBytes:0.##} {suffixes[order]}";
             }
-            
+            else
+            {
+                while (bytes >= 1024 && order < suffixes.Length - 1)
+                {
+                    bytes /= 1024;
+                    order++;
+                }
+                return $"{bytes:0.##} {suffixes[order]}";
+            }
+        }
 
-            return $"{bytes:0.##} {suffixes[order]}";
+        private void UpdateDriveInfo()
+        {
+            var driveLetter = Path.GetPathRoot(fPath);
+            var drive = new DriveInfo(driveLetter);
+
+            OutputSizeLabel.Text = $"Выходной размер: {GetFriendlySize(fSize + GetMoarSize())}";
+            DriveLabel.Text = $"Том: \"{driveLetter[0]}\"";
+            TotalMemLabel.Text = $"Всего: {GetFriendlySize(drive.TotalSize)}";
+            FreeMemLabel.Text = $"Свободно: {GetFriendlySize(drive.AvailableFreeSpace)}";
+
+            mLeft = drive.AvailableFreeSpace - (fSize + GetMoarSize());
+            if (mLeft < 0)
+            {
+                LeftMemLabel.Text = $"Останется: -{GetFriendlySize(mLeft)}";
+                LeftMemLabel.ForeColor = Color.Red;
+            }
+            else
+            {
+                LeftMemLabel.Text = $"Останется: {GetFriendlySize(mLeft)}";
+                LeftMemLabel.ForeColor = Color.Blue;
+            }
         }
 
         private BigInteger GetFileSize(Uri uriPath)
@@ -59,7 +97,7 @@ namespace MoarBytes
                 return BigInteger.Parse(webResponse.Headers.Get("Content-Length"));
         }
 
-        private BigInteger GetMoarSize() => (BigInteger)CountMb.Value * 1024 * 1024;
+        private BigInteger GetMoarSize() => (BigInteger)(CountBytes.Value * (decimal)Math.Pow(1024, TypeBytes.SelectedIndex));
 
         private void RunProcess(string name, string arguments)
         {
@@ -89,11 +127,20 @@ namespace MoarBytes
 
         private void CountMb_ValueChanged(object sender, EventArgs e)
         {
-            if(!string.IsNullOrEmpty(fPath))
-                OutputSizeLabel.Text = $"Выходной размер: {GetFriendlySize(fSize + GetMoarSize())}";
+            if (!string.IsNullOrEmpty(fPath))
+            {
+                UpdateDriveInfo();
+            }
         }
 
-        private void SaveFile_Click(object sender, EventArgs e)
+        private void TypeBytes_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(fPath))
+            {
+                UpdateDriveInfo();
+            }
+        }
+         private void SaveFile_Click(object sender, EventArgs e)
         {
 
             try
@@ -108,12 +155,26 @@ namespace MoarBytes
                 {
                     MessageBox.Show("Файл не существует");
                     
-                    FileNameLabel.Text = $"Файл: Не выбран";
+                    FileNameLabel.Text = "Файл: Не выбран";
                     FileNameLabel.ForeColor = Color.Red;
 
-                    FileSizeLabel.Text = $"Размер файла: -";
-                    OutputSizeLabel.Text = $"Выходной размер: -";
+                    FileSizeLabel.Text = "Размер файла: -";
+                    OutputSizeLabel.Text = "Выходной размер: -";
 
+                    DriveLabel.Text = "Том: -";
+                    TotalMemLabel.Text = "Всего: -";
+                    FreeMemLabel.Text = "Свободно: -";
+                    
+                    LeftMemLabel.Text = "Останется: -";
+                    LeftMemLabel.ForeColor = Color.Blue;
+
+                    fPath = string.Empty;
+                    return;
+                }
+
+                if(mLeft <= 0)
+                {
+                    MessageBox.Show("Нельзя создать файл, так как его размер в сумме с размерами других файлов превышает объем свободного пространства на томе");
                     return;
                 }
 
@@ -137,5 +198,6 @@ namespace MoarBytes
                 MessageBox.Show("Файл используется другим процессом");
             }
         }
+
     }
 }
