@@ -41,6 +41,7 @@
             this.TotalMemLabel = new System.Windows.Forms.Label();
             this.FreeMemLabel = new System.Windows.Forms.Label();
             this.LeftMemLabel = new System.Windows.Forms.Label();
+            this.ReturnOriginalSize = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.CountBytes)).BeginInit();
             this.SuspendLayout();
             // 
@@ -126,7 +127,7 @@
             // 
             this.OutputSizeLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.OutputSizeLabel.ForeColor = System.Drawing.Color.Blue;
-            this.OutputSizeLabel.Location = new System.Drawing.Point(12, 230);
+            this.OutputSizeLabel.Location = new System.Drawing.Point(12, 276);
             this.OutputSizeLabel.Name = "OutputSizeLabel";
             this.OutputSizeLabel.Size = new System.Drawing.Size(228, 43);
             this.OutputSizeLabel.TabIndex = 7;
@@ -153,7 +154,7 @@
             // 
             this.DriveLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.DriveLabel.ForeColor = System.Drawing.Color.Blue;
-            this.DriveLabel.Location = new System.Drawing.Point(12, 273);
+            this.DriveLabel.Location = new System.Drawing.Point(12, 319);
             this.DriveLabel.Name = "DriveLabel";
             this.DriveLabel.Size = new System.Drawing.Size(228, 23);
             this.DriveLabel.TabIndex = 9;
@@ -164,7 +165,7 @@
             // 
             this.TotalMemLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.TotalMemLabel.ForeColor = System.Drawing.Color.Blue;
-            this.TotalMemLabel.Location = new System.Drawing.Point(12, 296);
+            this.TotalMemLabel.Location = new System.Drawing.Point(12, 342);
             this.TotalMemLabel.Name = "TotalMemLabel";
             this.TotalMemLabel.Size = new System.Drawing.Size(228, 23);
             this.TotalMemLabel.TabIndex = 10;
@@ -175,7 +176,7 @@
             // 
             this.FreeMemLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.FreeMemLabel.ForeColor = System.Drawing.Color.Blue;
-            this.FreeMemLabel.Location = new System.Drawing.Point(12, 319);
+            this.FreeMemLabel.Location = new System.Drawing.Point(12, 365);
             this.FreeMemLabel.Name = "FreeMemLabel";
             this.FreeMemLabel.Size = new System.Drawing.Size(228, 23);
             this.FreeMemLabel.TabIndex = 11;
@@ -186,19 +187,35 @@
             // 
             this.LeftMemLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.LeftMemLabel.ForeColor = System.Drawing.Color.Blue;
-            this.LeftMemLabel.Location = new System.Drawing.Point(12, 342);
+            this.LeftMemLabel.Location = new System.Drawing.Point(12, 388);
             this.LeftMemLabel.Name = "LeftMemLabel";
             this.LeftMemLabel.Size = new System.Drawing.Size(228, 23);
             this.LeftMemLabel.TabIndex = 12;
             this.LeftMemLabel.Text = "Останется: -";
             this.LeftMemLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // ReturnOriginalSize
+            // 
+            this.ReturnOriginalSize.BackColor = System.Drawing.Color.Transparent;
+            this.ReturnOriginalSize.FlatAppearance.BorderColor = System.Drawing.Color.Green;
+            this.ReturnOriginalSize.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.ReturnOriginalSize.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.ReturnOriginalSize.Location = new System.Drawing.Point(12, 233);
+            this.ReturnOriginalSize.Name = "ReturnOriginalSize";
+            this.ReturnOriginalSize.Size = new System.Drawing.Size(228, 40);
+            this.ReturnOriginalSize.TabIndex = 13;
+            this.ReturnOriginalSize.TabStop = false;
+            this.ReturnOriginalSize.Text = "Вернуть исходный размер";
+            this.ReturnOriginalSize.UseVisualStyleBackColor = false;
+            this.ReturnOriginalSize.Click += new System.EventHandler(this.ReturnOriginalSize_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(252, 371);
+            this.ClientSize = new System.Drawing.Size(252, 418);
+            this.Controls.Add(this.ReturnOriginalSize);
             this.Controls.Add(this.LeftMemLabel);
             this.Controls.Add(this.FreeMemLabel);
             this.Controls.Add(this.TotalMemLabel);
@@ -237,6 +254,7 @@
         private System.Windows.Forms.Label TotalMemLabel;
         private System.Windows.Forms.Label FreeMemLabel;
         private System.Windows.Forms.Label LeftMemLabel;
+        private System.Windows.Forms.Button ReturnOriginalSize;
     }
 }
 

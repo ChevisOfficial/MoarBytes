@@ -10,8 +10,8 @@ namespace MoarBytes
 {
     public partial class MainForm : Form
     {
-        private string fPath;
-        private BigInteger fSize, mLeft;
+        public static string fPath;
+        public static BigInteger fSize, mLeft;
         public MainForm()
         {
             InitializeComponent();
@@ -26,7 +26,6 @@ namespace MoarBytes
                 {
                     fPath = fileDialog.FileName;
                     fSize = GetFileSize(new Uri(fPath));
-
 
                     FileNameLabel.Text = $"Файл: {fileDialog.SafeFileName}";
                     FileNameLabel.ForeColor = Color.Green;
@@ -117,14 +116,35 @@ namespace MoarBytes
         }
 
 
-        private string GetFileNameWithMoared()
+        private string GetFileNameWithSuffix(string suffix)
         {
             string directory = Path.GetDirectoryName(fPath);
             string fileName = Path.GetFileNameWithoutExtension(fPath);
             string fileExtension = Path.GetExtension(fPath);
-            return Path.Combine(directory, $"{fileName}_moared{fileExtension}");
+            return Path.Combine(directory, $"{fileName}_{suffix}{fileExtension}");
         }
 
+        private void ResetPath()
+        {
+            FileNameLabel.Text = "Файл: Не выбран";
+            FileNameLabel.ForeColor = Color.Red;
+
+            FileSizeLabel.Text = "Размер файла: -";
+            OutputSizeLabel.Text = "Выходной размер: -";
+
+            DriveLabel.Text = "Том: -";
+            TotalMemLabel.Text = "Всего: -";
+            FreeMemLabel.Text = "Свободно: -";
+
+            LeftMemLabel.Text = "Останется: -";
+            LeftMemLabel.ForeColor = Color.Blue;
+
+            ReturnOriginalSize.Enabled = false;
+
+            fPath = string.Empty;
+        }
+
+        
         private void CountMb_ValueChanged(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(fPath))
@@ -140,9 +160,55 @@ namespace MoarBytes
                 UpdateDriveInfo();
             }
         }
-         private void SaveFile_Click(object sender, EventArgs e)
+
+        private void ReturnOriginalSize_Click(object sender, EventArgs e)
         {
 
+            if (string.IsNullOrEmpty(fPath))
+            {
+                MessageBox.Show("Файл не выбран");
+                return;
+            }
+
+            if (!File.Exists(fPath))
+            {
+                MessageBox.Show("Файл не существует");
+                ResetPath();
+                return;
+            }
+
+
+            CountingForm countingForm = new CountingForm();
+            if(countingForm.ShowDialog() == DialogResult.OK)
+            {
+                if(countingForm.fileRealBytes == 0)
+                {
+                    MessageBox.Show("Данный файл уже имеет исходный размер");
+                    return;
+                }
+
+                string fileDemoared = GetFileNameWithSuffix("demoared");
+
+                if (File.Exists(fileDemoared))
+                    File.Delete(fileDemoared);
+                File.Copy(fPath, fileDemoared);
+                RunProcess("fsutil", $"file seteof \"{fileDemoared}\" {countingForm.fileRealBytes}");
+
+                if (GetFileSize(new Uri(fileDemoared)) != countingForm.fileRealBytes)
+                {
+                    if (File.Exists(fileDemoared))
+                        File.Delete(fileDemoared);
+                    MessageBox.Show("Возвращение файла к исходному размеру не произошло");
+                }
+                else
+                    RunProcess("explorer", $"/e, /select, \"{fileDemoared}\"");
+            }
+
+
+        }
+
+        private void SaveFile_Click(object sender, EventArgs e)
+        {
             try
             {
                 if (string.IsNullOrEmpty(fPath))
@@ -154,21 +220,7 @@ namespace MoarBytes
                 if(!File.Exists(fPath))
                 {
                     MessageBox.Show("Файл не существует");
-                    
-                    FileNameLabel.Text = "Файл: Не выбран";
-                    FileNameLabel.ForeColor = Color.Red;
-
-                    FileSizeLabel.Text = "Размер файла: -";
-                    OutputSizeLabel.Text = "Выходной размер: -";
-
-                    DriveLabel.Text = "Том: -";
-                    TotalMemLabel.Text = "Всего: -";
-                    FreeMemLabel.Text = "Свободно: -";
-                    
-                    LeftMemLabel.Text = "Останется: -";
-                    LeftMemLabel.ForeColor = Color.Blue;
-
-                    fPath = string.Empty;
+                    ResetPath();
                     return;
                 }
 
@@ -178,7 +230,7 @@ namespace MoarBytes
                     return;
                 }
 
-                string fileMoared = GetFileNameWithMoared();
+                string fileMoared = GetFileNameWithSuffix("moared");
                 if (File.Exists(fileMoared))
                     File.Delete(fileMoared);
                 File.Copy(fPath, fileMoared);
